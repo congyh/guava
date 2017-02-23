@@ -22,7 +22,7 @@ import com.google.common.annotations.VisibleForTesting;
 import javax.annotation.Nullable;
 
 /**
- * Static utility methods pertaining to {@code String} or {@code CharSequence} instances.
+ * Static utility methods pertaining(适用于) to {@code String} or {@code CharSequence} instances.
  *
  * @author Kevin Bourrillion
  * @since 3.0
@@ -62,12 +62,16 @@ public final class Strings {
    *
    * @param string a string reference to check
    * @return {@code true} if the string is null or is the empty string
+   *
+   * 实际上{@link Platform#stringIsNullOrEmpty(String)} 底层就是通过简单的null和isEmpty来判断的
    */
   public static boolean isNullOrEmpty(@Nullable String string) {
     return Platform.stringIsNullOrEmpty(string);
   }
 
   /**
+   * 作用是将一个字符串补全到一定的字节数, 如果字符串本身的长度超出了指定的字节数, 那么直接补全
+   *
    * Returns a string, of length at least {@code minLength}, consisting of {@code string} prepended
    * with as many copies of {@code padChar} as are necessary to reach that length. For example,
    *
@@ -149,6 +153,7 @@ public final class Strings {
 
     // IF YOU MODIFY THE CODE HERE, you must update StringsRepeatBenchmark
     final int len = string.length();
+    // 这里目的是看int是否会溢出, 如果溢出了抛出异常
     final long longSize = (long) len * (long) count;
     final int size = (int) longSize;
     if (size != longSize) {
@@ -158,10 +163,24 @@ public final class Strings {
     final char[] array = new char[size];
     string.getChars(0, len, array, 0);
     int n;
+
+    /**
+     * 这里的n是按位左移, 举个例子, 假设现在我们的string是"abc", 然后count是5
+     * 所以size变成了15, 那么最初的n的二进制表示形式是11, 小于15-3,
+     * 循环一次n变为了110, 也就是6, 小于15-6
+     * 再循环一次n变为了1100, 也就是12, 大于15-12循环停止
+     * 然后出了循环把每复制完的补齐即可
+     *
+     * [小结]
+     * 1. 这里为什么要使用<<操作?
+     *  因为按位左移操作每进行一次, 相当于*2的操作, 数组的这种copy方法最快速
+     * 2. System.arraycopy()是native的方法, 效率首选
+     */
     for (n = len; n < size - n; n <<= 1) {
       System.arraycopy(array, 0, array, n, n);
     }
     System.arraycopy(array, 0, array, n, size - n);
+    // String类型可以采用一个字符数组来构造
     return new String(array);
   }
 
@@ -170,6 +189,9 @@ public final class Strings {
    * {@code a.toString().startsWith(prefix) && b.toString().startsWith(prefix)}, taking care not to
    * split surrogate pairs. If {@code a} and {@code b} have no common prefix, returns the empty
    * string.
+   *
+   * 这里说的是注意不要匹配了一个一半的UTF-16编码的字符, 也就是说你匹配长度的最大值可能是UTF-16编码的高半代理,
+   * 需要手动去掉
    *
    * @since 11.0
    */
@@ -182,6 +204,7 @@ public final class Strings {
     while (p < maxPrefixLength && a.charAt(p) == b.charAt(p)) {
       p++;
     }
+    // 只要两者有一个是高半代理, 就应该将此位去掉
     if (validSurrogatePairAt(a, p - 1) || validSurrogatePairAt(b, p - 1)) {
       p--;
     }
@@ -193,6 +216,8 @@ public final class Strings {
    * {@code a.toString().endsWith(suffix) && b.toString().endsWith(suffix)}, taking care not to
    * split surrogate pairs. If {@code a} and {@code b} have no common suffix, returns the empty
    * string.
+   *
+   * 可以参见上面的{@link #commonPrefix(CharSequence, CharSequence)}的解释
    *
    * @since 11.0
    */
@@ -215,6 +240,8 @@ public final class Strings {
   /**
    * True when a valid surrogate pair starts at the given {@code index} in the given {@code string}.
    * Out-of-range indexes return false.
+   *
+   * 检查是否是一个UTF-16编码的字符
    */
   @VisibleForTesting
   static boolean validSurrogatePairAt(CharSequence string, int index) {

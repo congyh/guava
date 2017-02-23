@@ -18,6 +18,8 @@ package com.google.common.annotations;
  * Annotates a program element that exists, or is more widely visible than otherwise necessary, only
  * for use in test code.
  *
+ * 带这个注解的东西本来的可见范围可以是更高的, 但是加了这个表示除了在测试中使用时, 其他地方不鼓励使用.
+ *
  * @author Johannes Henkel
  */
 @GwtCompatible
