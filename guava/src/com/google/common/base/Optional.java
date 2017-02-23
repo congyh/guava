@@ -80,6 +80,8 @@ import javax.annotation.Nullable;
  * @author Kurt Alfred Kluever
  * @author Kevin Bourrillion
  * @since 10.0
+ *
+ * 两个实现类分别是{@link Absent}和{@link Optional}
  */
 @GwtCompatible(serializable = true)
 public abstract class Optional<T> implements Serializable {
@@ -88,6 +90,8 @@ public abstract class Optional<T> implements Serializable {
    *
    * <p><b>Comparison to {@code java.util.Optional}:</b> this method is equivalent to Java 8's
    * {@code Optional.empty}.
+   *
+   * <p>{@code Absent.withType}返回的是{@code Optional<Object>}
    */
   public static <T> Optional<T> absent() {
     return Absent.withType();
@@ -100,6 +104,8 @@ public abstract class Optional<T> implements Serializable {
    * <p><b>Comparison to {@code java.util.Optional}:</b> no differences.
    *
    * @throws NullPointerException if {@code reference} is null
+   *
+   * 强制进行null检查, 如果是null, 则显式抛出异常
    */
   public static <T> Optional<T> of(T reference) {
     return new Present<T>(checkNotNull(reference));
@@ -126,6 +132,7 @@ public abstract class Optional<T> implements Serializable {
    */
   @Nullable
   public static <T> Optional<T> fromJavaUtil(@Nullable java.util.Optional<T> javaUtilOptional) {
+    // orElse方法的意思是如果自己不为null, 则返回自己的值, 如果是null, 则返回other参数的值
     return (javaUtilOptional == null) ? null : fromNullable(javaUtilOptional.orElse(null));
   }
 
@@ -146,7 +153,7 @@ public abstract class Optional<T> implements Serializable {
   public static <T> java.util.Optional<T> toJavaUtil(@Nullable Optional<T> googleOptional) {
     return googleOptional == null ? null : googleOptional.toJavaUtil();
   }
-
+  // 低调的protected的构造函数
   Optional() {}
 
   /**

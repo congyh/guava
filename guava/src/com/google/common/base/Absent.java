@@ -26,6 +26,7 @@ import javax.annotation.Nullable;
  */
 @GwtCompatible
 final class Absent<T> extends Optional<T> {
+  // 创建一个静态的Absent实例, 并不是说真的是"缺失"的
   static final Absent<Object> INSTANCE = new Absent<Object>();
 
   @SuppressWarnings("unchecked") // implementation is "fully variant"
@@ -33,6 +34,9 @@ final class Absent<T> extends Optional<T> {
     return (Optional<T>) INSTANCE;
   }
 
+  /**
+   * 构造方法私有化
+   */
   private Absent() {}
 
   @Override

@@ -116,6 +116,9 @@ public final class Preconditions {
    * @param errorMessage the exception message to use if the check fails; will be converted to a
    *     string using {@link String#valueOf(Object)}
    * @throws IllegalArgumentException if {@code expression} is false
+   *
+   * 注意: 这里使用的是{@code Object}类型的errorMessage, 然后使用{@link String#valueOf(Object)}
+   *  获得其{@code String}类型的表示形式
    */
   public static void checkArgument(boolean expression, @Nullable Object errorMessage) {
     if (!expression) {
@@ -141,6 +144,7 @@ public final class Preconditions {
   public static void checkArgument(
       boolean expression,
       @Nullable String errorMessageTemplate,
+      // {@code Object...}是变长参数的写法, 实际上编译器底层会将其以数组的形式处理
       @Nullable Object... errorMessageArgs) {
     if (!expression) {
       throw new IllegalArgumentException(format(errorMessageTemplate, errorMessageArgs));
@@ -764,7 +768,8 @@ public final class Preconditions {
    * @return the non-null reference that was validated
    * @throws NullPointerException if {@code reference} is null
    */
-  @CanIgnoreReturnValue
+  @CanIgnoreReturnValue // 意思就是这个函数的返回值你不是非用不可, 可以选择性的忽略
+  // 如果不明白可以类比JDK中的map的put方法, 会返回上一个值
   public static <T> T checkNotNull(T reference) {
     if (reference == null) {
       throw new NullPointerException();
@@ -1142,6 +1147,8 @@ public final class Preconditions {
    * appears that this pattern is not directly applicable. But we can use the ridiculous, devious
    * trick of throwing an exception in the middle of the construction of another exception. Hotspot
    * is fine with that.
+   *
+   * 采用的是嵌套抛异常的方式
    */
 
   /**
@@ -1171,6 +1178,7 @@ public final class Preconditions {
    * @throws IllegalArgumentException if {@code size} is negative
    */
   @CanIgnoreReturnValue
+  // 这里的参数desc是describe的简写
   public static int checkElementIndex(int index, int size, @Nullable String desc) {
     // Carefully optimized for execution by hotspot (explanatory comment above)
     if (index < 0 || index >= size) {
@@ -1267,15 +1275,19 @@ public final class Preconditions {
   /**
    * Substitutes each {@code %s} in {@code template} with an argument. These are matched by
    * position: the first {@code %s} gets {@code args[0]}, etc. If there are more arguments than
-   * placeholders, the unmatched arguments will be appended to the end of the formatted message in
+   * placeholders(这里的placeholders指的是{@code %s}),
+   * the unmatched arguments will be appended to the end of the formatted message in
    * square braces.
    *
    * @param template a non-null string containing 0 or more {@code %s} placeholders.
    * @param args the arguments to be substituted into the message template. Arguments are converted
    *     to strings using {@link String#valueOf(Object)}. Arguments can be null.
+   *
+   * 本方法将一个template中的%s替换成具体的参数
    */
   // Note that this is somewhat-improperly used from Verify.java as well.
   static String format(String template, @Nullable Object... args) {
+    // {@code valueOf}方法可以接受{@code null}, 处理方式是将其变为"null"字符串
     template = String.valueOf(template); // null -> "null"
 
     // start substituting the arguments into the '%s' placeholders
@@ -1287,6 +1299,7 @@ public final class Preconditions {
       if (placeholderStart == -1) {
         break;
       }
+      // {@code String}是一种{@code CharSequence}类型
       builder.append(template, templateStart, placeholderStart);
       builder.append(args[i++]);
       templateStart = placeholderStart + 2;
