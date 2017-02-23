@@ -34,7 +34,8 @@ import java.lang.annotation.Target;
  *
  * @author Kevin Bourrillion
  */
-@Retention(RetentionPolicy.CLASS)
+@Retention(RetentionPolicy.CLASS) // RetentionPolicy标识了注解留存的级别, CLASS级别表示在CLASS文件中留存, 但是在runtime不留存
+// Target规定了注解能够作用的位置
 @Target({
   ElementType.ANNOTATION_TYPE,
   ElementType.CONSTRUCTOR,
@@ -42,6 +43,7 @@ import java.lang.annotation.Target;
   ElementType.METHOD,
   ElementType.TYPE
 })
+// 表明注解是要被记录在javadoc中的
 @Documented
 @GwtCompatible
 public @interface Beta {}
