@@ -54,6 +54,8 @@ import javax.annotation.Nullable;
  *
  * <p>The common ways to get an instance of {@code Ordering} are:
  *
+ * 获得一个Ordering实例有三种方法:
+ *
  * <ul>
  * <li>Subclass it and implement {@link #compare} instead of implementing {@link Comparator}
  *     directly
@@ -65,6 +67,8 @@ import javax.annotation.Nullable;
  *
  * <p>Then you can use the <i>chaining</i> methods to get an altered version of that {@code
  * Ordering}, including:
+ *
+ * 在获得一个Ordering实例之后, 还可以启用Chaining的方法, 对已有的Ordering实例做出改变
  *
  * <ul>
  * <li>{@link #reverse}
@@ -91,15 +95,17 @@ import javax.annotation.Nullable;
  * <pre>{@code
  * Ordering<Foo> ordering =
  *     Ordering.natural()
- *         .nullsFirst()
+ *         .nullsFirst() // 意思就是null视为比所有其他值都小
  *         .onResultOf(getBarFunction)
- *         .nullsLast();
+ *         .nullsLast(); // null视为比所有其他值都大
  * }</pre>
  *
  * Note that each chaining method returns a new ordering instance which is backed by the previous
  * instance, but has the chance to act on values <i>before</i> handing off to that backing instance.
  * As a result, it usually helps to read chained ordering expressions <i>backwards</i>. For example,
  * when {@code compare} is called on the above ordering:
+ *
+ * 上面一段话说的是如果多个复杂的排序条件串联起来执行, 后面加上的条件先生效
  *
  * <ol>
  * <li>First, if only one {@code Foo} is null, that null value is treated as <i>greater</i>
@@ -128,6 +134,8 @@ import javax.annotation.Nullable;
  * {@link Comparators} class. See each method below for further instructions. Whenever possible, you
  * should change any references of type {@code Ordering} to be of type {@code Comparator} instead.
  * However, at this time we have no plan to <i>deprecate</i> this class.
+ *
+ * 对于java 8的用户来说, 这个类被废弃掉了, 取而代之的是JDK中的Stream类, Comparator类, 以及Guava中的Comparators类
  *
  * <p>Many replacements involve adopting {@code Stream}, and these changes can sometimes make your
  * code verbose. Whenever following this advice, you should check whether {@code Stream} could be

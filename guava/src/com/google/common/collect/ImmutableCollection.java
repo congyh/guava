@@ -67,6 +67,8 @@ import javax.annotation.Nullable;
  *     threads.
  * <li><b>Integrity.</b> This type cannot be subclassed outside this package (which would allow
  *     these guarantees to be violated).
+ *
+ *     完整性: 为了保证线程安全性, 及不可变等诸多特性, 不允许在此包以外对类进行扩展
  * </ul>
  *
  * <h4>"Interfaces", not implementations</h4>
@@ -160,10 +162,15 @@ public abstract class ImmutableCollection<E> extends AbstractCollection<E> imple
    * We expect SIZED (and SUBSIZED, if applicable) to be added by the spliterator factory methods.
    * These are properties of the collection as a whole; SIZED and SUBSIZED are more properties of
    * the spliterator implementation.
+   *
+   * TODO spliterator作用于Collection等, 报告了Collection的一些特性
    */
   static final int SPLITERATOR_CHARACTERISTICS =
       Spliterator.IMMUTABLE | Spliterator.NONNULL | Spliterator.ORDERED;
 
+  /**
+   * 这里将构造方法设置为可见性为protected, 保证在本包外不能继承本类, 从而确保了线程安全性, 不变性及一票其他特性.
+   */
   ImmutableCollection() {}
 
   /**
