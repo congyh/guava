@@ -78,6 +78,9 @@ public @interface GwtCompatible {
    * When {@code true}, the annotated type is emulated in GWT. The emulated source (also known as
    * super-source) is different from the implementation used by the JVM.
    *
+   * 这段话的意思是带这个标识的type可以仿真标准的JDK中的实现, 也就是能够覆盖标准JVM中的实现, 但是不应该用于生产环境?
+   * TODO 还未理解
+   *
    * @see <a href=
    *     "http://code.google.com/webtoolkit/doc/latest/DevGuideOrganizingProjects.html#DevGuideModules">
    *     Documentation about GWT emulated source</a>

@@ -71,6 +71,7 @@ public final class Throwables {
   public static <X extends Throwable> void throwIfInstanceOf(
       Throwable throwable, Class<X> declaredType) throws X {
     checkNotNull(throwable);
+    // 如果throwable是declaredType这种Class, 那么转换就不会出错, 就可以安全的转换.
     if (declaredType.isInstance(throwable)) {
       throw declaredType.cast(throwable);
     }

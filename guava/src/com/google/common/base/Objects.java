@@ -19,6 +19,8 @@ import java.util.Arrays;
 import javax.annotation.Nullable;
 
 /**
+ * 整个类对于java7以上的版本应该被废弃掉
+ *
  * Helper functions that can operate on any {@code Object}.
  *
  * <p>See the Guava User Guide on
@@ -33,6 +35,9 @@ public final class Objects extends ExtraObjectsMethodsForWeb {
   private Objects() {}
 
   /**
+   *
+   * 这个方法对于java7及以上版本废弃掉了.
+   *
    * Determines whether two possibly-null objects are equal. Returns:
    *
    * <ul>

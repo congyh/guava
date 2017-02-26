@@ -52,6 +52,7 @@ abstract class AbstractIterator<T> implements Iterator<T> {
 
   @Override
   public final boolean hasNext() {
+    // 只要不是失败状态, 程序继续向下进行
     checkState(state != State.FAILED);
     switch (state) {
       case READY:
@@ -60,16 +61,20 @@ abstract class AbstractIterator<T> implements Iterator<T> {
         return false;
       default:
     }
+    // 如果是NOT_READY则再次尝试获取next
     return tryToComputeNext();
   }
 
   private boolean tryToComputeNext() {
-    state = State.FAILED; // temporary pessimism
+    state = State.FAILED; // temporary pessimism(悲观)
+    // 获取next
     next = computeNext();
+    // 在computeNext中, 如果获取到了next, 要对State做出相应的改变
     if (state != State.DONE) {
       state = State.READY;
       return true;
     }
+    // 如果是Done了, 或者中间出了问题, 就是false, 同时hasNext()方法也会呈现出false
     return false;
   }
 
@@ -86,6 +91,7 @@ abstract class AbstractIterator<T> implements Iterator<T> {
 
   @Override
   public final void remove() {
+    // 因为是immutable的, 所以是不支持的操作
     throw new UnsupportedOperationException();
   }
 }

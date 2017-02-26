@@ -516,6 +516,9 @@ public abstract class CharMatcher implements Predicate<Character> {
    * query than the original; your mileage may vary. Precomputation takes time and is likely to be
    * worthwhile only if the precomputed matcher is queried many thousands of times.
    *
+   * 返回一个功能上和原来的CharMather的CharMather, 但是可能回避原来的快. 这取决于你这个precompute的过程,
+   * 如果precompute过程是值得的, 那就是好的
+   *
    * <p>This method has no effect (returns {@code this}) when called in GWT: it's unclear whether a
    * precomputed matcher is faster, but it certainly consumes more memory, which doesn't seem like a
    * worthwhile tradeoff in a browser.
@@ -529,6 +532,8 @@ public abstract class CharMatcher implements Predicate<Character> {
   /**
    * This is the actual implementation of {@link #precomputed}, but we bounce calls through a method
    * on {@link Platform} so that we can have different behavior in GWT.
+   *
+   * TODO 为什么要用这种bounce call的方式
    *
    * <p>This implementation tries to be smart in a number of ways. It recognizes cases where the
    * negation is cheaper to precompute than the matcher itself; it tries to build small hash tables

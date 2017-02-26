@@ -59,9 +59,13 @@ import java.util.regex.Pattern;
  * "bar"]}. Note that the order in which these configuration methods are called is never
  * significant.
  *
+ * 配置Splitter的顺序是无关的
+ *
  * <p><b>Warning:</b> Splitter instances are immutable. Invoking a configuration method has no
  * effect on the receiving instance; you must store and use the new splitter instance it returns
  * instead. <pre>   {@code
+ *
+ * Splitter是不可变的, 必须配置生成一个新的Splitter实例
  *
  *   // Do NOT do this
  *   Splitter splitter = Splitter.on('/');
@@ -74,6 +78,7 @@ import java.util.regex.Pattern;
  * returned containing the entire input. Consequently, all splitters split the empty string to
  * {@code [""]} (note: even fixed-length splitters).
  *
+ * Splitter是线程安全不可变的. 所以可以设置成static final以便所有线程共享.
  * <p>Splitter instances are thread-safe immutable, and are therefore safe to store as
  * {@code static final} constants.
  *
@@ -96,6 +101,8 @@ public final class Splitter {
   private final Strategy strategy;
   private final int limit;
 
+  // 好的代码规范都是通过构造器互相调用的方式来进行初始化的.
+  // 一般是创建一个无参的构造器, 然后调用有参的构造器, 并同时提供一些默认值
   private Splitter(Strategy strategy) {
     this(strategy, false, CharMatcher.none(), Integer.MAX_VALUE);
   }
@@ -114,6 +121,10 @@ public final class Splitter {
    *
    * @param separator the character to recognize as a separator
    * @return a splitter, with default settings, that recognizes that separator
+   *
+   * static final Splitter splitter = Splitter.on(','); //这句话返回的是一个新的Splitter
+   *
+   * 注意: Splitter是不可变的, 所以要想获得一个配置好的Splitter实例, 必须用一个static final的接收, 如上
    */
   public static Splitter on(char separator) {
     return on(CharMatcher.is(separator));
@@ -173,6 +184,7 @@ public final class Splitter {
               public int separatorStart(int start) {
                 int separatorLength = separator.length();
 
+                // 这里使用的是go-to语句?
                 positions:
                 for (int p = start, last = toSplit.length() - separatorLength; p <= last; p++) {
                   for (int i = 0; i < separatorLength; i++) {
@@ -480,8 +492,12 @@ public final class Splitter {
      */
     public Map<String, String> split(CharSequence sequence) {
       Map<String, String> map = new LinkedHashMap<String, String>();
-      for (String entry : outerSplitter.split(sequence)) {
+      for (String entry : outerSplitter.split(sequence)) { // 外层循环是外层的Splitter作用的
+        // 由于实现了Iterable接口, 所以可以通过forEach语法糖来遍历
+        // 内层分割完首先获得一个Iterable
         Iterator<String> entryFields = entrySplitter.splittingIterator(entry);
+
+        // 必须不多不少, 有一个key, 有一个value, 并且key不重复才算为分割成功
 
         checkArgument(entryFields.hasNext(), INVALID_ENTRY_MESSAGE, entry);
         String key = entryFields.next();
@@ -493,6 +509,8 @@ public final class Splitter {
 
         checkArgument(!entryFields.hasNext(), INVALID_ENTRY_MESSAGE, entry);
       }
+      // unmodifiableMap实际上是相当于创建一个原Map的视图, 试图对unmodifiableMap进行修改
+      // 或者试图通过unmodifiableMap来对原Map进行修改是行不通的
       return Collections.unmodifiableMap(map);
     }
   }
